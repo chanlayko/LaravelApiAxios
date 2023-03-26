@@ -6,6 +6,7 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
@@ -24,11 +25,25 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $post = Post::create([
-            'Title' => $request->title,
-            'Description' => $request->description
-        ]);
-        return response()->json($post, 200);
+        $messages = [
+            'required' => 'The :attribute field is required!',
+        ];
+
+       $validater = Validator::make($request->all(), [
+            'title' => 'required|unique:posts|max:255',
+            'description' => 'required',
+       ],$messages);
+        
+       if($validater->fails()){
+            return response()->json(['msg'=> $validater->errors()], 200);
+       }else{
+            $post = Post::create([
+                'Title' => $request->title,
+                'Description' => $request->description
+            ]);
+            return response()->json([$post, 'msg'=>'Data Create Successfully'], 200);
+       }
+        
     }
 
     /**
@@ -49,7 +64,7 @@ class PostController extends Controller
             'Description' => $request->description,
         ]);
 
-        return response()->json(['msg'=>'update success'], 200);
+        return response()->json(['msg'=>'update successfully'], 200);
     }
 
     /**
@@ -59,6 +74,6 @@ class PostController extends Controller
     {
         $post->delete();
 
-        return response()->json(['msg'=>'Delete success'], 200);
+        return response()->json(['msg'=>'Delete successfully'], 200);
     }
 }
