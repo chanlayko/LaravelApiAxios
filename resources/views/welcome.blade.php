@@ -84,21 +84,22 @@
 
     <script>
         // INDEX
+        var tableBody = document.getElementById('tableBody');
+
        axios.get('/api/post')
             .then(response => {
                 // console.log(response.data);
 
-                var tableBody = document.getElementById('tableBody');
-
                 response.data.forEach(item => {
-                    tableBody.innerHTML += 
-                        '<tr>'+
-                            '<td>'+item.id+'</td>'+
-                            '<td>'+item.Title+'</td>'+
-                            '<td>'+item.Description+'</td>'+
-                            '<td><button class="btn btn-outline-success btn-sm" onclick="editBtn('+item.id+')" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>'+
-                            '<td><button class="btn btn-outline-danger btn-sm">Detele</button>'+
-                        '</tr>'
+                    displayData(item)
+                    // tableBody.innerHTML += 
+                    //     '<tr>'+
+                    //         '<td>'+item.id+'</td>'+
+                    //         '<td>'+item.Title+'</td>'+
+                    //         '<td>'+item.Description+'</td>'+
+                    //         '<td><button class="btn btn-outline-success btn-sm" onclick="editBtn('+item.id+')" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>'+
+                    //         '<td><button class="btn btn-outline-danger btn-sm" onclick="deleteBtn('+item.id+')">Detele</button>'+
+                    //     '</tr>'
                 });
             })
             .catch(error => {
@@ -126,10 +127,20 @@
                     description : descriptionInput.value,
                 })
                      .then(response => {
-                        console.log(response);
+                        console.log(response.data);
                         if (response.data.msg == 'Data Create Successfully') {
-                            document.getElementById('succMsg').innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">'+ response.data.msg +'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+                            alertMsg(response.data.msg);
+                            // document.getElementById('succMsg').innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">'+ response.data.msg +'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
                             myForm.reset();
+                            displayData(response.data[0])
+                            // tableBody.innerHTML += 
+                            //     '<tr>'+
+                            //         '<td>'+response.data[0].id+'</td>'+
+                            //         '<td>'+response.data[0].Title+'</td>'+
+                            //         '<td>'+response.data[0].Description+'</td>'+
+                            //         '<td><button class="btn btn-outline-success btn-sm" onclick="editBtn('+response.data[0].id+')" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>'+
+                            //         '<td><button class="btn btn-outline-danger btn-sm" onclick="deleteBtn('+response.data[0].id+')">Detele</button>'+
+                            //     '</tr>'
                         } else {
                             var titleErr = document.getElementById('titleError');
                             var descErr = document.getElementById('descriptionError');
@@ -161,6 +172,8 @@
                         console.log(error);
                      });
             }
+
+            // Update
             var myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {
                 keyboard: false
             })
@@ -172,13 +185,41 @@
                     })  
                      .then(response => {
                         console.log(response.data);
-                        document.getElementById('succMsg').innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">'+ response.data.msg +'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
-                        // document.getElementById('exampleModal').modal('hide');
+                        alertMsg(response.data.msg);
+                        // document.getElementById('succMsg').innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">'+ response.data.msg +'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
                         myModal.hide();
                      })
                      .catch(error => {
                         console.log(error);
                      });
+            }
+
+            // Delete
+            function deleteBtn(postId){
+                axios.delete('/api/post/'+postId)
+                     .then( response => {
+                        console.log(response.data);
+                        alertMsg(response.data.msg);
+                        // document.getElementById('succMsg').innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">'+ response.data.msg +'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
+                     })
+                     .catch(error => {
+                        console.log(error);
+                     })
+            }
+
+            function displayData(funData){
+                tableBody.innerHTML += 
+                    '<tr>'+
+                        '<td>'+funData.id+'</td>'+
+                        '<td>'+funData.Title+'</td>'+
+                        '<td>'+funData.Description+'</td>'+
+                        '<td><button class="btn btn-outline-success btn-sm" onclick="editBtn('+funData.id+')" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>'+
+                        '<td><button class="btn btn-outline-danger btn-sm" onclick="deleteBtn('+funData.id+')">Detele</button>'+
+                    '</tr>'
+            }
+
+            function alertMsg(msg){
+                document.getElementById('succMsg').innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">'+ msg +'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
             }
     </script>
 </body>
