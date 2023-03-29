@@ -85,6 +85,9 @@
     <script>
         // INDEX
         var tableBody = document.getElementById('tableBody');
+        var titleList = document.getElementsByClassName('titleList');
+        var descList = document.getElementsByClassName('descList');
+        // console.log(titleList);
 
        axios.get('/api/post')
             .then(response => {
@@ -130,7 +133,6 @@
                         console.log(response.data);
                         if (response.data.msg == 'Data Create Successfully') {
                             alertMsg(response.data.msg);
-                            // document.getElementById('succMsg').innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">'+ response.data.msg +'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
                             myForm.reset();
                             displayData(response.data[0])
                             // tableBody.innerHTML += 
@@ -161,12 +163,17 @@
             var editTitleInput = editForm['title'];
             var editDescInput = editForm['description'];
             var postIdInput;
+            var oldTitle;
+            var oldDesc;
             function editBtn(postId){
                 postIdInput = postId;
                 axios.get('/api/post/'+postId)
                      .then( response => {
                        editTitleInput.value = response.data.Title;
                        editDescInput.value = response.data.Description; 
+
+                       oldTitle = response.data.Title;
+                       oldDesc = response.data.Description;
                      })
                      .catch( error => {
                         console.log(error);
@@ -186,8 +193,15 @@
                      .then(response => {
                         console.log(response.data);
                         alertMsg(response.data.msg);
-                        // document.getElementById('succMsg').innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">'+ response.data.msg +'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
                         myModal.hide();
+
+                        for (var i = 0; i < titleList.length; i++) {
+                            if (titleList[i].innerHTML == oldTitle) {
+                                    titleList[i].innerHTML = editTitleInput.value;
+                                    descList[i].innerHTML = editDescInput.value;
+                            }
+                            
+                        }
                      })
                      .catch(error => {
                         console.log(error);
@@ -200,19 +214,19 @@
                      .then( response => {
                         console.log(response.data);
                         alertMsg(response.data.msg);
-                        // document.getElementById('succMsg').innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">'+ response.data.msg +'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
                      })
                      .catch(error => {
                         console.log(error);
                      })
             }
 
+            // HELPPER FUNCTION
             function displayData(funData){
                 tableBody.innerHTML += 
                     '<tr>'+
                         '<td>'+funData.id+'</td>'+
-                        '<td>'+funData.Title+'</td>'+
-                        '<td>'+funData.Description+'</td>'+
+                        '<td class="titleList">'+funData.Title+'</td>'+
+                        '<td class="descList">'+funData.Description+'</td>'+
                         '<td><button class="btn btn-outline-success btn-sm" onclick="editBtn('+funData.id+')" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>'+
                         '<td><button class="btn btn-outline-danger btn-sm" onclick="deleteBtn('+funData.id+')">Detele</button>'+
                     '</tr>'
