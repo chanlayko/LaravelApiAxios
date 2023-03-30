@@ -17,7 +17,7 @@ class PostController extends Controller
     {
         $post = Post::all();
         
-        return response()->json($post, 200);
+        return response()->json(['posts' => $post], 200);
     }
 
     /**
@@ -41,7 +41,7 @@ class PostController extends Controller
                 'Title' => $request->title,
                 'Description' => $request->description
             ]);
-            return response()->json([$post, 'msg'=>'Data Create Successfully'], 200);
+            return response()->json(['createPost' => $post, 'msg'=>'Data Create Successfully'], 200);
        }
         
     }
@@ -51,7 +51,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return response()->json($post, 200);
+        return response()->json(['posts' => $post], 200);
     }
 
     /**
@@ -74,6 +74,6 @@ class PostController extends Controller
     {
         $post->delete();
 
-        return response()->json(['msg'=>'Delete successfully'], 200);
+        return response()->json(['deletedPost' => $post,'msg'=>'Delete successfully'], 200);
     }
 }

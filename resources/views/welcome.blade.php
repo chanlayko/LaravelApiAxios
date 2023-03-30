@@ -87,22 +87,17 @@
         var tableBody = document.getElementById('tableBody');
         var titleList = document.getElementsByClassName('titleList');
         var descList = document.getElementsByClassName('descList');
+        var idList = document.getElementsByClassName('idList');
+        var btnList1 = document.getElementsByClassName('btnList1');
+        var btnList2 = document.getElementsByClassName('btnList2');
         // console.log(titleList);
 
        axios.get('/api/post')
             .then(response => {
                 // console.log(response.data);
 
-                response.data.forEach(item => {
-                    displayData(item)
-                    // tableBody.innerHTML += 
-                    //     '<tr>'+
-                    //         '<td>'+item.id+'</td>'+
-                    //         '<td>'+item.Title+'</td>'+
-                    //         '<td>'+item.Description+'</td>'+
-                    //         '<td><button class="btn btn-outline-success btn-sm" onclick="editBtn('+item.id+')" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>'+
-                    //         '<td><button class="btn btn-outline-danger btn-sm" onclick="deleteBtn('+item.id+')">Detele</button>'+
-                    //     '</tr>'
+                response.data.posts.forEach(item => {
+                    displayData(item);
                 });
             })
             .catch(error => {
@@ -131,22 +126,14 @@
                 })
                      .then(response => {
                         console.log(response.data);
+                        var titleErr = document.getElementById('titleError');
+                        var descErr = document.getElementById('descriptionError');
                         if (response.data.msg == 'Data Create Successfully') {
                             alertMsg(response.data.msg);
                             myForm.reset();
-                            displayData(response.data[0])
-                            // tableBody.innerHTML += 
-                            //     '<tr>'+
-                            //         '<td>'+response.data[0].id+'</td>'+
-                            //         '<td>'+response.data[0].Title+'</td>'+
-                            //         '<td>'+response.data[0].Description+'</td>'+
-                            //         '<td><button class="btn btn-outline-success btn-sm" onclick="editBtn('+response.data[0].id+')" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>'+
-                            //         '<td><button class="btn btn-outline-danger btn-sm" onclick="deleteBtn('+response.data[0].id+')">Detele</button>'+
-                            //     '</tr>'
+                            displayData(response.data.createPost);
+                            titleErr.innerHTML = descErr.innerHTML = '';
                         } else {
-                            var titleErr = document.getElementById('titleError');
-                            var descErr = document.getElementById('descriptionError');
-
                             titleErr.innerHTML = titleInput.value == '' ? '<i class="text-danger">'+response.data.msg.title+'</i>':'';
                             descErr.innerHTML = descriptionInput.value == '' ? '<i class="text-danger">'+response.data.msg.description+'</i>':'';
                         }  
@@ -162,18 +149,13 @@
             var editForm = document.forms['editForm'];
             var editTitleInput = editForm['title'];
             var editDescInput = editForm['description'];
-            var postIdInput;
-            var oldTitle;
-            var oldDesc;
+            var postIdInput, oldTitle, oldDesc;
             function editBtn(postId){
                 postIdInput = postId;
                 axios.get('/api/post/'+postId)
                      .then( response => {
-                       editTitleInput.value = response.data.Title;
-                       editDescInput.value = response.data.Description; 
-
-                       oldTitle = response.data.Title;
-                       oldDesc = response.data.Description;
+                       editTitleInput.value = oldTitle = response.data.posts.Title;
+                       editDescInput.value = oldDesc = response.data.posts.Description; 
                      })
                      .catch( error => {
                         console.log(error);
@@ -210,25 +192,37 @@
 
             // Delete
             function deleteBtn(postId){
-                axios.delete('/api/post/'+postId)
+                if (confirm('Are you sure Delete!')) {
+                    axios.delete('/api/post/'+postId)
                      .then( response => {
-                        console.log(response.data);
+                        // console.log(response.data.deletedPost.Title);
                         alertMsg(response.data.msg);
+                        for (var i = 0; i < titleList.length; i++) {
+                            if (titleList[i].innerHTML == response.data.deletedPost.Title) {
+                                titleList[i].style.display = 'none';
+                                descList[i].style.display = 'none';
+                                idList[i].style.display = 'none';
+                                btnList1[i].style.display = 'none';
+                                btnList2[i].style.display = 'none';
+                            }
+                            
+                        }
                      })
                      .catch(error => {
                         console.log(error);
                      })
+                }
             }
 
             // HELPPER FUNCTION
             function displayData(funData){
                 tableBody.innerHTML += 
                     '<tr>'+
-                        '<td>'+funData.id+'</td>'+
+                        '<td class="idList">'+funData.id+'</td>'+
                         '<td class="titleList">'+funData.Title+'</td>'+
                         '<td class="descList">'+funData.Description+'</td>'+
-                        '<td><button class="btn btn-outline-success btn-sm" onclick="editBtn('+funData.id+')" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>'+
-                        '<td><button class="btn btn-outline-danger btn-sm" onclick="deleteBtn('+funData.id+')">Detele</button>'+
+                        '<td class="btnList1"><button class="btn btn-outline-success btn-sm" onclick="editBtn('+funData.id+')" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>'+
+                        '<td class="btnList2"><button class="btn btn-outline-danger btn-sm" onclick="deleteBtn('+funData.id+')">Detele</button>'+
                     '</tr>'
             }
 
